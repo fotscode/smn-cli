@@ -3,27 +3,31 @@ import json
 from colorama import Fore
 from datetime import date
 import getopt
+import requests
 import sys
 
 
 def get_token():
-    return subprocess.getoutput(
-        """curl -s https://www.smn.gob.ar/pronostico | grep localStorage.setItem | awk -F"'" '{print $4}' | head -1"""
+    return (
+        requests.get("https://www.smn.gob.ar/pronostico")
+        .text.split("localStorage.setItem('token', '")[1]
+        .split("'")[0]
     )
 
 
 def get_weather(location="4856"):
-    return json.loads(
-        subprocess.getoutput(
-            f"curl -s -H 'Authorization: JWT {get_token()}' 'https://ws1.smn.gob.ar/v1/forecast/location/{location}'"
-        )
-    )
+    res = requests.get(
+        f"https://ws1.smn.gob.ar/v1/forecast/location/{location}",
+        headers={"Authorization": f"JWT {get_token()}"},
+    ).text
+    return json.loads(res)
 
 
 def get_localidad(name: str):
     name = name.replace(" ", "%20")
     url = "https://ws1.smn.gob.ar/v1/georef/location/search?name=" + name
-    res = json.loads(subprocess.getoutput(f"curl -s '{url}'"))
+    res = json.loads(requests.get(url).text)
+
     if len(res) == 0:
         print(f"{Fore.RED}ERROR:{Fore.RESET} localidad no encontrada")
         sys.exit(1)
@@ -31,8 +35,10 @@ def get_localidad(name: str):
         ciudad = res[i][1]
         departamento = res[i][2]
         provincia = res[i][3]
-        num= res[i][0]
-        print(f"{Fore.BLUE}{i}{Fore.RESET} - {ciudad} ({departamento}), {provincia} [{num}]")
+        num = res[i][0]
+        print(
+            f"{Fore.BLUE}{i}{Fore.RESET} - {ciudad} ({departamento}), {provincia} [{num}]"
+        )
     return res
 
 

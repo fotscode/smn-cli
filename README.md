@@ -4,7 +4,7 @@ Interfaz tipo CLI para obtener datos sobre el clima de Argentina, los datos son 
 
 ## Uso
 
-Se debe tener `python` instalado y ademas `curl`, `grep`, `awk` y `head`, es decir comandos tipo Unix.
+Se debe tener `python` instalado.
 
 `python smn-cli.py` para realizar la consulta de forma interactiva.
 
@@ -13,3 +13,7 @@ Se debe tener `python` instalado y ademas `curl`, `grep`, `awk` y `head`, es dec
 `python smn-cli.py -l 'LOCALIDAD'` para buscar según el nombre de localidad.
 
 `python smn-cli.py -n NUMERO` para buscar según el numero de localidad (identificador según smn).
+
+`python smn-cli.py -h` muestra estas opciones junto con sus variantes largas.
+
+Se pueden combinar distintas opciones.
