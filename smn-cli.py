@@ -1,22 +1,22 @@
-import subprocess
 import json
 from colorama import Fore
 from datetime import date
 import getopt
-import requests
+import cloudscraper
 import sys
 
+scraper = cloudscraper.create_scraper()
 
 def get_token():
     return (
-        requests.get("https://www.smn.gob.ar/pronostico")
+        scraper.get("https://www.smn.gob.ar/pronostico")
         .text.split("localStorage.setItem('token', '")[1]
         .split("'")[0]
     )
 
 
 def get_weather(location="4856"):
-    res = requests.get(
+    res = scraper.get(
         f"https://ws1.smn.gob.ar/v1/forecast/location/{location}",
         headers={"Authorization": f"JWT {get_token()}"},
     ).text
@@ -26,7 +26,7 @@ def get_weather(location="4856"):
 def get_localidad(name: str):
     name = name.replace(" ", "%20")
     url = "https://ws1.smn.gob.ar/v1/georef/location/search?name=" + name
-    res = json.loads(requests.get(url).text)
+    res = json.loads(scraper.get(url).text)
 
     if len(res) == 0:
         print(f"{Fore.RED}ERROR:{Fore.RESET} localidad no encontrada")
