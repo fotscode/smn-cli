@@ -21,3 +21,5 @@ Se debe tener `python` instalado.
 `python smn-cli.py -h` muestra estas opciones junto con sus variantes largas.
 
 Se pueden combinar distintas opciones.
+
+![demo gif](./smn-cli-demo.gif)
