@@ -18,8 +18,7 @@ def get_token(tries=0):
     try:
         token = res.split("localStorage.setItem('token', '")[1].split("'")[0]
     except Exception as e:
-        print(e)
-        if tries == 10:
+        if tries == 50:
             print(
                 f"{Fore.RED}ERROR:{Fore.RESET} no se pudo pasar el token, intente nuevamente"
             )
