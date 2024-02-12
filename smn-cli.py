@@ -5,22 +5,48 @@ import getopt
 import cloudscraper
 import sys
 
-scraper = cloudscraper.create_scraper()
-
-def get_token():
-    return (
-        scraper.get("https://www.smn.gob.ar/pronostico")
-        .text.split("localStorage.setItem('token', '")[1]
-        .split("'")[0]
-    )
+scraper = cloudscraper.create_scraper(
+    browser={"browser": "chrome", "platform": "windows", "mobile": False}, delay=30
+)
 
 
-def get_weather(location="4856"):
+def get_token(tries=0):
+    res = scraper.get(
+        "https://www.smn.gob.ar/pronostico",
+        headers={"Referer": "https://www.smn.gob.ar/"},
+    ).text
+    try:
+        token = res.split("localStorage.setItem('token', '")[1].split("'")[0]
+    except Exception as e:
+        print(e)
+        if tries == 10:
+            print(
+                f"{Fore.RED}ERROR:{Fore.RESET} no se pudo pasar el token, intente nuevamente"
+            )
+            sys.exit(1)
+        return get_token(tries + 1)
+    return token
+
+
+def get_weather(location="4856", tries=0, token=""):
+    if token == "":
+        token = get_token()
     res = scraper.get(
         f"https://ws1.smn.gob.ar/v1/forecast/location/{location}",
-        headers={"Authorization": f"JWT {get_token()}"},
+        headers={"Authorization": f"JWT {token}", "Referer": "https://www.smn.gob.ar/"},
     ).text
-    return json.loads(res)
+    try:
+        weather = json.loads(res)
+    except Exception as e:
+        if tries == 50:
+            print(
+                f"{Fore.RED}ERROR:{Fore.RESET} no se pudo obtener el pronostico, intente nuevamente\n",
+                f"\tLo mas probable es que sea problema de cloudflare\n",
+                f"\tSe realizaron {tries} intentos",
+            )
+            sys.exit(2)
+        return get_weather(tries=tries + 1, token=token)
+    return weather
 
 
 def get_localidad(name: str):
